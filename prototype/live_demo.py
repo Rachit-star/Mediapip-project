@@ -291,7 +291,7 @@ window.startCamera = async function() {
 </script>
 </body>
 </html>
-""", height=620, scrolling=False)
+""", height=620, scrolling=True)
 
 st.markdown("---")
 st.markdown(
