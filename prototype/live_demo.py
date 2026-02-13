@@ -4,7 +4,6 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
-import numpy as np
 import urllib.request
 import os
 import av
@@ -44,6 +43,7 @@ def draw_hand(frame, landmarks, h, w):
         cv2.circle(frame, (x, y), 5, (255, 255, 255), -1)
         cv2.circle(frame, (x, y), 5, (0, 150, 255), 1)
 
+# ── Gesture detection ─────────────────────────────────────────────────────────
 def detect_gesture(landmarks):
     thumb_tip  = landmarks[4]
     index_tip  = landmarks[8]
@@ -74,6 +74,7 @@ def detect_gesture(landmarks):
         return "OK"
     return "UNKNOWN"
 
+# ── Video Processor ───────────────────────────────────────────────────────────
 class GestureProcessor(VideoProcessorBase):
     def __init__(self):
         self._lock = threading.Lock()
@@ -128,6 +129,7 @@ class GestureProcessor(VideoProcessorBase):
 
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
+# ── Streamlit UI ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Gestellence", page_icon="🤙", layout="centered")
 st.title("🤙 Gestellence – Live Gesture Translation")
 st.caption("Academic Project · MUJ 2026")
@@ -137,47 +139,13 @@ st.info(
     icon="ℹ️"
 )
 
-# ── KEY FIX: Multiple STUN servers + SENDRECV mode ───────────────────────────
-RTC_CONFIGURATION = {
-    "iceServers": [
-        {"urls": ["stun:stun.l.google.com:19302"]},
-        {"urls": ["stun:stun1.l.google.com:19302"]},
-        {"urls": ["stun:stun2.l.google.com:19302"]},
-        {"urls": ["stun:stun3.l.google.com:19302"]},
-        {"urls": ["stun:stun4.l.google.com:19302"]},
-        {"urls": ["stun:openrelay.metered.ca:80"]},
-        {
-            "urls": ["turn:openrelay.metered.ca:80"],
-            "username": "openrelayproject",
-            "credential": "openrelayproject",
-        },
-        {
-            "urls": ["turn:openrelay.metered.ca:443"],
-            "username": "openrelayproject",
-            "credential": "openrelayproject",
-        },
-    ]
-}
-
 ctx = webrtc_streamer(
     key="gestellence-live",
     mode=WebRtcMode.SENDRECV,
     video_processor_factory=GestureProcessor,
-    rtc_configuration=RTC_CONFIGURATION,
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
 )
 
 if ctx.video_processor:
     st.markdown(f"### Detected: `{ctx.video_processor.gesture}`")
-
-# ── Reconnect tip ─────────────────────────────────────────────────────────────
-with st.expander("⚠️ Connection keeps resetting?"):
-    st.markdown("""
-    **Try these in order:**
-    1. Click **STOP** then **START** again — usually fixes it on retry
-    2. Open in **Chrome** (best WebRTC support on Windows)
-    3. Allow camera access when browser prompts
-    4. If on a VPN — **disconnect the VPN** and retry
-    5. Run with: `streamlit run app.py --server.address=localhost`
-    """)
