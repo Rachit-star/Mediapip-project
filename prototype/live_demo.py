@@ -60,9 +60,9 @@ function gesture(lm){
 }
 
 function draw(lm,W,H){
-  x.strokeStyle="rgba(0,200,200,0.8)";x.lineWidth=2;
+  x.strokeStyle="rgba(255,255,255,0.6)";x.lineWidth=1;
   for(const[a,b]of CONN){x.beginPath();x.moveTo(lm[a].x*W,lm[a].y*H);x.lineTo(lm[b].x*W,lm[b].y*H);x.stroke();}
-  for(const p of lm){x.beginPath();x.arc(p.x*W,p.y*H,5,0,6.28);x.fillStyle="white";x.fill();}
+  for(const p of lm){x.beginPath();x.arc(p.x*W,p.y*H,3,0,6.28);x.fillStyle="#ff3333";x.fill();}
 }
 
 function loop(){
